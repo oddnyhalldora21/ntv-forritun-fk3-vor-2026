@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Input } from "./Input";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Card, CardHeader, CardTitle } from "./ui/card";
 import { Field, FieldDescription, FieldGroup, FieldLabel, FieldSet } from "./ui/field";
 import {
     Select,
