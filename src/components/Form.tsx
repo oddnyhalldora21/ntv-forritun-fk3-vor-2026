@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { Input } from "./Input";
 import { Card, CardHeader, CardTitle } from "./ui/card";
 import {
@@ -18,6 +18,7 @@ import {
 import { Button } from "./Button";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { Label } from "./ui/label";
+import useDebounce from "@/hooks/useDebounce";
 
 type FormValuesType = {
     firstName: string
@@ -29,7 +30,18 @@ type FormValuesType = {
 }
 
 export function Form() {
+    // TODO: Remove ref data set, and only use state to keep track of realtime local data (written in input)
+    // NOTE: You might want to detach the email from the data set (since it's used to index the localstorage)
     const dataRef = useRef<FormValuesType>({
+        firstName: '',
+        lastName: '',
+        email: '',
+        mobileNumber: '',
+        selectedFruit: '',
+        radioButton: null,
+    })
+
+    const [values, setValues] = useState<FormValuesType>({
         firstName: '',
         lastName: '',
         email: '',
@@ -42,24 +54,44 @@ export function Form() {
         dataRef.current[key] = value
     }, [])
 
-    const [firstName, setFirstName] = useState('')
-    const [lastName, setLastName] = useState('')
-
-    const headerValue = useMemo(() => `${firstName} ${lastName}`, [firstName, lastName])
-
-
     const onSubmit = () => {
-        const { firstName } = dataRef.current
-        window.alert(`Hello ${firstName}`)
+        const { firstName, email } = dataRef.current
+        localStorage.setItem(email, JSON.stringify(dataRef.current))
+        window.alert(`Hello ${firstName}; email address ${email}`)
     }
 
+    const loadEmailRef = useRef<HTMLInputElement>(null)
+
+    const onLoad = useCallback(() => {
+        if (loadEmailRef.current && loadEmailRef.current.value) {
+            const localStorageValue = localStorage.getItem(loadEmailRef.current?.value)
+            if (localStorageValue) {
+                const parsedLocalStorageValue: FormValuesType = JSON.parse(localStorageValue)
+                window.alert(parsedLocalStorageValue.firstName)
+                loadEmailRef.current.value = ''
+                setValues(parsedLocalStorageValue)
+            } else {
+                window.alert('Email not found')
+            }
+        } else {
+            window.alert('Some bug was found!')
+        }
+    }, [])
+
+    // TODO: Use the correct state to connect to debounce state
+    const [TEMP_HOOK_REPLACE] = useState('');
+
+    // Set delay time according to your needs
+    const debouncedSearchTerm = useDebounce(TEMP_HOOK_REPLACE, 1000);
+    // TODO: Write useEffect to repopulate the localstorage after debounce
+    // NOTE: The email has to be present for this to work
+
+
+    // TODO: If no email is provided, display only the email input, or some other alternative UX
+
     return (
-        <div>
-            <p>{headerValue} </p>
-            <Input
-                onChange={(e) => {
-                }}
-            />
+        <div >
+            {/* {(firstName || lastName) ? <p>Your name is: {headerValue} </p> : <p>What is your name?</p>} */}
             <Card className="w-3/4 max-w-7xl bg-blue-950">
                 <CardHeader>
                     <div className="flex items-center gap-2">
@@ -78,11 +110,14 @@ export function Form() {
                     <FieldSet>
                         <FieldGroup>
                             <Field>
+                                <p className="text-white">Search term: {debouncedSearchTerm}</p>
                                 <Input
                                     className="bg-white"
                                     id="firstName"
                                     autoComplete="off"
                                     placeholder="Gunnsteinn"
+                                    // TODO: Set values to all input fields in the form
+                                    value={values.firstName}
                                     onChange={(e) => {
                                         onInputChange('firstName', e.target.value)
                                     }}
@@ -103,6 +138,7 @@ export function Form() {
                                 <Input
                                     className="bg-white"
                                     id="email"
+                                    disabled
                                     autoComplete="off"
                                     type="email"
                                     placeholder="asdf@ntv.is"
@@ -167,50 +203,42 @@ export function Form() {
                     </div>
                 </form>
             </Card>
-        </div>);
+            <Card className="my-4">
+                <CardHeader>
+                    <div className="flex items-center gap-2">
+                        <div className="grow border h-0"></div>
+                        <CardTitle>Already filled out form?</CardTitle>
+                        <div className="grow border h-0"></div>
+                    </div>
+                </CardHeader>
+                <form
+                    onSubmit={(e) => {
+                        e.preventDefault()
+                        onLoad()
+                    }}
+                    className="w-full"
+                >
+                    <FieldSet>
+                        <FieldGroup>
+                            <Field>
+                                <Input
+                                    className="bg-white"
+                                    id="email"
+                                    autoComplete="off"
+                                    type="email"
+                                    ref={loadEmailRef}
+                                    placeholder="asdf@ntv.is"
+                                />
+                            </Field>
+                        </FieldGroup>
+                    </FieldSet>
+                    <div className="flex flex-col py-4 gap-4">
+                        <Button value="load" type="submit" className="bg-green-500 p-4 rounded text-white uppercase" />
+                        <Button value="create new" type="submit" className="bg-green-500 p-4 rounded text-white uppercase" />
+                    </div>
+                </form>
+            </Card>
+        </div>
+    );
 }
 
-export const calculatePasswordStrength = (password: string) => {
-    // This console log is crucial! Have them watch their console.
-    // If they don't useMemo, this will fire on every single keystroke in the form.
-    console.log("Calculating password strength... (Heavy operation running!)");
-
-    if (!password) return 0;
-
-    // --- THE ARTIFICIAL LAG ---
-    // This simulates a computationally expensive task. 
-    // You may need to adjust the loop size depending on the speed of their machines, 
-    // but 20 million iterations usually causes a noticeable stutter in the UI.
-    let delay = 0;
-    for (let i = 0; i < 20000000; i++) {
-        // Intentionally set a value without using it to create artificial lag
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        delay += i;
-    }
-
-    // --- THE ACTUAL LOGIC ---
-    let score = 0;
-
-    if (password.length >= 8) score += 1; // Minimum length
-    if (password.length >= 12) score += 1; // Good length
-    if (/[A-Z]/.test(password)) score += 1; // Has uppercase
-    if (/[0-9]/.test(password)) score += 1; // Has number
-    if (/[^A-Za-z0-9]/.test(password)) score += 1; // Has special character
-
-    console.log('Password checked!')
-
-    // Returns a score from 0 to 5
-    return score;
-};
-
-export function useLocalStorage(key, initialValue) {
-    const [storedValue, setStoredValue] = useState();
-
-    const setValue = (value: string) => {
-        console.log('old value was', storedValue)
-        console.log('new value is', value)
-        setStoredValue(value);
-    };
-
-    return [storedValue, setValue];
-}
