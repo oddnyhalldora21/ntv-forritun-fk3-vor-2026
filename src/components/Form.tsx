@@ -83,7 +83,8 @@ export function Form() {
 
     
     return (
-        <div>
+        
+            <div className="flex flex-col items-center">
             {!values.email ? (
                 <Card className="w-3/4 max-w-7xl bg-blue-950">
                     <CardHeader>
@@ -213,12 +214,12 @@ export function Form() {
                                     <CardTitle className="text-white">or</CardTitle>
                                     <div className="grow border h-0"></div>
                                 </div>
-                                <Button value="Edit" type="submit" className="bg-black p-4 rounded text-white uppercase border-pink-500 border" />                            </div>
+                                <Button value="Clear" type="submit" className="bg-black p-4 rounded text-white uppercase border-pink-500 border" />                            </div>
                         </form>
                     </Card>
-                    <Card className="my-4">
+                    <Card className="my-4 w-3/4 max-w-7xl">
                         <CardHeader>
-                            <div className="flex items-center gap-2">
+                            <div>
                                 <div className="grow border h-0"></div>
                                 <CardTitle>Already filled out form?</CardTitle>
                                 <div className="grow border h-0"></div>
@@ -246,8 +247,8 @@ export function Form() {
                                 </FieldGroup>
                             </FieldSet>
                             <div className="flex flex-col py-4 gap-4">
-                            <Button value="Load" type="submit" className="bg-pink-500 p-4 rounded text-white uppercase" />
-                            <Button value="Create New" type="submit" className="bg-green-500 p-4 rounded text-white uppercase" />                            </div>
+                            <Button value="Load" type="submit" className="bg-pink-500 p-4 rounded text-black uppercase" />
+                            <Button value="Create New" type="submit" className="bg-green-500 p-4 rounded text-black uppercase" />                            </div>
                         </form>
                     </Card>
                 </>
