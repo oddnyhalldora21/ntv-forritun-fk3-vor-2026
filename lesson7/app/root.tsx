@@ -1,4 +1,5 @@
 import type { LinksFunction } from "@remix-run/node";
+import { ThemeProvider } from './context/ThemeContext';
 import {
   Links,
   Meta,
@@ -30,10 +31,12 @@ export default function App() {
         <Links />
       </head>
       <body>
-        <Outlet />
-        <ScrollRestoration />
-        <Scripts />
-      </body>
-    </html>
+      <ThemeProvider>
+       <Outlet />
+      </ThemeProvider>
+      <ScrollRestoration />
+      <Scripts />
+       </body>
+    </html>   
   );
 }

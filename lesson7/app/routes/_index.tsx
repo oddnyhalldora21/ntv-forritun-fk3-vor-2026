@@ -1,4 +1,5 @@
 import { ThemeToggle } from '../components/ThemeToggle';
+import { Counter } from '../features/counter/CounterReducer';
 
 export default function Index() {
   return (
@@ -6,6 +7,7 @@ export default function Index() {
       <h1>Remix Theme App</h1>
       <p className="muted">A simple app with light and dark theme.</p>
       <ThemeToggle />
+      <Counter />
       <div className="card">
         <p className="muted">
           The theme follows your system preference on load. Use the button to
