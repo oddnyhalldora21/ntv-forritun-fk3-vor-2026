@@ -1,7 +1,7 @@
 import { Products } from '@/features/products';
-import { useAppStore } from '@/store/AppStore';
+import { useCart } from '@/features/cart/context/useCart';
 
 export function ProductsPage() {
-  const { products, addToCart } = useAppStore();
-  return <Products products={products} onAddToCart={addToCart} />;
+  const { addToCart } = useCart();
+  return <Products onAddToCart={addToCart} />;
 }
