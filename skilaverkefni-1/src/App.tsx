@@ -1,37 +1,45 @@
+import { useState } from 'react'
 import { useStoreSync } from '@/hooks/useStoreSync'
-import { useAppStore } from '@/store/useAppStore'
+import { ProjectList } from '@/components/ProjectList'
+import { ProjectForm } from '@/components/ProjectForm'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import type { Project } from '@/types'
 
 function App() {
   useStoreSync()
-
-  const { projects, addProject } = useAppStore()
-
-  const handleAdd = () => {
-    addProject({
-      id: crypto.randomUUID(),
-      name: 'Test Project',
-      description: 'A test project',
-      createdAt: new Date().toISOString(),
-    })
-  }
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null)
+  const [showProjectForm, setShowProjectForm] = useState(false)
 
   return (
-    <div className="p-8">
-      <h1 className="text-3xl font-bold mb-6">Team Task Hub</h1>
-      <button
-        onClick={handleAdd}
-        className="bg-blue-500 text-white px-4 py-2 rounded mb-4"
-      >
-        Add Test Project
-      </button>
-      <ul>
-        {projects.map((p) => (
-          <li key={p.id} className="border p-3 rounded mb-2">
-            <p className="font-semibold">{p.name}</p>
-            <p className="text-sm text-gray-500">{p.description}</p>
-          </li>
-        ))}
-      </ul>
+    <div className="min-h-screen bg-gray-50">
+      <header className="bg-white border-b px-6 py-4">
+        <h1 className="text-2xl font-bold">Team Task Hub</h1>
+      </header>
+      <div className="flex gap-6 p-6">
+        <aside className="w-72 bg-white rounded-lg border p-4">
+          <ProjectList
+            onSelectProject={setSelectedProject}
+            selectedProjectId={selectedProject?.id ?? null}
+            onNewProject={() => setShowProjectForm(true)}
+          />
+        </aside>
+        <main className="flex-1 bg-white rounded-lg border p-4">
+          {selectedProject ? (
+            <h2 className="text-xl font-semibold">{selectedProject.name}</h2>
+          ) : (
+            <p className="text-gray-500">Select a project to see its tasks.</p>
+          )}
+        </main>
+      </div>
+
+      <Dialog open={showProjectForm} onOpenChange={setShowProjectForm}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>New Project</DialogTitle>
+          </DialogHeader>
+          <ProjectForm onClose={() => setShowProjectForm(false)} />
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
