@@ -4,6 +4,7 @@ import { ProjectList } from '@/components/ProjectList'
 import { ProjectForm } from '@/components/ProjectForm'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import type { Project } from '@/types'
+import { TaskList } from '@/components/TaskList'
 
 function App() {
   useStoreSync()
@@ -25,7 +26,7 @@ function App() {
         </aside>
         <main className="flex-1 bg-white rounded-lg border p-4">
           {selectedProject ? (
-            <h2 className="text-xl font-semibold">{selectedProject.name}</h2>
+            <TaskList projectId={selectedProject.id} projectName={selectedProject.name} />
           ) : (
             <p className="text-gray-500">Select a project to see its tasks.</p>
           )}

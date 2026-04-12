@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { z } from 'zod'
 import { useAppStore } from '@/store/useAppStore'
 import type { Project, Task } from '@/types'
@@ -34,11 +34,16 @@ function loadFromStorage<T>(key: string, schema: z.ZodType<T>): T[] {
 
 export function useStoreSync() {
   const { projects, tasks } = useAppStore()
+  const initialized = useRef(false)
 
   useEffect(() => {
+    if (initialized.current) return
+    initialized.current = true
     const savedProjects = loadFromStorage<Project>('projects', projectSchema)
     const savedTasks = loadFromStorage<Task>('tasks', taskSchema)
-    useAppStore.setState({ projects: savedProjects, tasks: savedTasks })
+    if (savedProjects.length > 0 || savedTasks.length > 0) {
+      useAppStore.setState({ projects: savedProjects, tasks: savedTasks })
+    }
   }, [])
 
   useEffect(() => {
